@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEROES OSCARS</title>
+    
+    
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- GSAP para animaciones avanzadas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Lottie para animaciones vectoriales -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    
+    <!-- Three.js para elementos 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.157.0/three.min.js"></script>
+    
+    <!-- Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'heroes-yellow': '#FFDD00',
+                        'heroes-black': '#0A0A0A',
+                        'heroes-white': '#FFFFFF',
+                        'heroes-gold': '#FFD700',
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'shine': 'shine 2s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        shine: {
+                            '0%': { backgroundPosition: '200% 0' },
+                            '100%': { backgroundPosition: '-200% 0' },
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Estilos base */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0A0A;
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
+        
+        .navbar-link {
+            position: relative;
+            color: #FFFFFF;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            bottom: -5px;
+            left: 0;
+            background-color: #FFDD00;
+            transition: width 0.3s ease;
+        }
+        
+        .navbar-link:hover {
+            color: #FFDD00;
+        }
+        
+        .navbar-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Efecto de cursor personalizado */
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: rgba(255, 221, 0, 0.5);
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+            transition: transform 0.1s ease;
+        }
+        
+        /* Gradiante animado para texto */
+        .text-gradient {
+            background: linear-gradient(90deg, #FFDD00, #FFF, #FFDD00);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+        
+        .golden-border {
+            background: linear-gradient(90deg, #FFDD00, #FFF8E1, #FFDD00);
+            background-size: 200% auto;
+            animation: shine 3s linear infinite;
+        }
+        
+        /* Efecto hover para categorías */
+        .category-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, #FFDD00, transparent, #FFDD00);
+            background-size: 400% 400%;
+            z-index: -1;
+            animation: gradient-shift 5s ease infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 15px 35px rgba(255, 221, 0, 0.2);
+        }
+        
+        .category-card:hover::before {
+            opacity: 1;
+        }
+        
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Estilo para los slots de ganadores */
+        .winner-slot {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .winner-slot::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(45deg, #FFDD00, transparent, #FFDD00);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: rotate 3s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Animación para escala */
+        .scale-in {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        
+        /* Animación para el héroe */
+        .hero-text-animation {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+        }
+        
+        /* Animator 3D Trophy */
+        #trophy-container {
+            width: 100%;
+            height: 300px;
+            margin-top: 2rem;
+        }
+        
+        /* Menu mobile */
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+        
+        /* Lottie container */
+        .lottie-container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        /* Particle effect */
+        .particle {
+            position: absolute;
+            background-color: #FFDD00;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+        }
+        
+        /* Nominee hover effect */
+        .nominee-item {
+            transition: all 0.3s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nominee-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255, 221, 0, 0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .nominee-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nominee-item:hover::after {
+            opacity: 1;
+        }
+        
+        /* Fancy scroll bar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #0A0A0A;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #FFDD00;
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fff;
+        }
+        
+        /* Animación para el texto de los Oscars */
+        .oscar-text {
+            position: relative;
+        }
+        
+        .oscar-text::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, #FFDD00, transparent);
+            left: -100%;
+            animation: slide 3s infinite;
+        }
+        
+        @keyframes slide {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+        
+        /* Hover effect for buttons */
+        .hover-effect {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .hover-effect::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.3s ease;
+        }
+        
+        .hover-effect:hover::before {
+            left: 100%;
+        }
+        
+        .hover-effect:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* MEJORAS DE RESPONSIVIDAD OSCARS ARTWORK */
+        
+        /* Animación para el artwork de los Oscars */
+        #oscars-artwork {
+            animation: float 6s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(255, 221, 0, 0.2));
+            transition: all 0.5s ease;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        /* Mejoras responsivas */
+        @media (max-width: 768px) {
+            .nominees-filter {
+                flex-wrap: nowrap;
+                padding-bottom: 1rem;
+                margin-bottom: 1rem;
+                justify-content: flex-start;
+            }
+            
+            .nominee-filter {
+                min-width: max-content;
+            }
+            
+            #oscars-artwork {
+                max-width: 80%;
+                margin: 0 auto;
+            }
+            
+            .hero-text-animation {
+                text-align: center;
+            }
+            
+            .scale-in {
+                text-align: center;
+            }
+            
+            .mobile-menu {
+                top: 4rem;
+            }
+        }
+        
+        /* Fix para el espacio entre secciones */
+        section {
+            padding-top: 5rem;
+            padding-bottom: 5rem;
+        }
+        
+        #home {
+            padding-top: 6rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Ajuste altura del separador entre secciones */
+        .section-spacer {
+            height: 0;
+        }
+        
+        /* Mejoras para las tarjetas de nominados */
+        .nominees-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .nominee-item {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .nominee-item.hidden {
+            display: none;
+        }
+        
+        
+    </style>
+</head>
+<body>
+    <!-- Cursor personalizado -->
+    <div class="custom-cursor"></div>
+    <!-- Navbar -->
+<nav class="fixed top-0 w-full bg-heroes-black bg-opacity-80 backdrop-blur-md z-50 px-4 md:px-0">
+    <div class="container mx-auto py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <img src="https://i.postimg.cc/CKVSLwcQ/117-sin-t-tulo-20250323142054.png" alt="Heroes Oscars Logo" class="h-10 w-auto">
+            <span class="text-heroes-yellow font-black text-xl md:block hidden">HEROES OSCARS</span>
+        </div>
+        
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex space-x-8">
+            <a href="#home" class="navbar-link">HOME</a>
+            <a href="#about" class="navbar-link">ABOUT</a>
+            <a href="#categories" class="navbar-link">CATEGORÍAS</a>
+            <a href="#nominees" class="navbar-link">NOMINADOS</a>
+            <a href="#winners" class="navbar-link">GANADORES</a>
+        </div>
+        
+        <!-- Mobile Navigation Toggle -->
+        <div class="md:hidden">
+            <button id="menu-toggle" class="text-heroes-yellow focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu fixed top-16 left-0 w-full h-screen bg-heroes-black bg-opacity-95 z-40 flex flex-col items-center pt-10 space-y-8">
+        <a href="#home" class="navbar-link text-2xl">HOME</a>
+        <a href="#about" class="navbar-link text-2xl">ABOUT</a>
+        <a href="#categories" class="navbar-link text-2xl">CATEGORÍAS</a>
+        <a href="#nominees" class="navbar-link text-2xl">NOMINADOS</a>
+        <a href="#winners" class="navbar-link text-2xl">GANADORES</a>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section id="home" class="min-h-screen flex items-center justify-center pt-20 pb-16 px-4 overflow-hidden relative">
+    <div class="absolute inset-0 z-0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <defs>
+                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#FFDD00" stroke-width="0.5" stroke-opacity="0.15"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
+    </div>
+    
+    <div class="container mx-auto z-10">
+        <div class="flex flex-col lg:flex-row items-center">
+            <div class="lg:w-1/2 flex flex-col items-start space-y-6 mb-10 lg:mb-0">
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-black hero-text-animation">
+                    <span class="text-gradient inline-block">HEROES</span>
+                    <span class="block text-heroes-yellow">OSCARS</span>
+                </h1>
+                <h2 class="text-2xl md:text-3xl font-bold text-white scale-in">PRIMERA EDICIÓN</h2>
+                <p class="text-lg md:text-xl text-gray-300 max-w-xl scale-in">
+                    Premiando a aquellos que han hecho posible que Heroes Academy sea más que una simple comunidad. 
+                    Una celebración de talento, dedicación y excelencia.
+                </p>
+                <div class="flex space-x-4 scale-in">
+                    <a href="#categories" class="bg-heroes-yellow text-heroes-black px-8 py-3 rounded-md font-bold hover-effect">
+                        CATEGORÍAS
+                    </a>
+                    <a href="#nominees" class="border-2 border-heroes-yellow text-heroes-yellow px-8 py-3 rounded-md font-bold hover-effect">
+                        NOMINADOS
+                    </a>
+                </div>
+            </div>
+            
+            <div class="lg:w-1/2 relative flex justify-center items-center">
+                <div id="oscars-artwork" class="w-full max-w-md xl:max-w-lg">
+                    <img src="https://i.postimg.cc/gcwwbrkR/Photo-Room-20250328-202911.png" alt="Heroes Oscars Artwork" class="w-full h-auto">
+                </div>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-heroes-yellow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="py-20 px-4 relative overflow-hidden">
+    <div class="container mx-auto">
+        <h2 class="text-4xl md:text-5xl font-black text-center mb-16 scale-in">
+            <span class="text-gradient">SOBRE LOS</span>
+            <span class="block text-heroes-yellow">HEROES OSCARS</span>
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 relative z-10">
+            <div class="bg-heroes-black bg-opacity-70 p-5 rounded-lg border border-heroes-yellow border-opacity-30 scale-in category-card flex flex-col items-center">
+                <div class="w-80 h-80 mb-6 flex items-center justify-center overflow-hidden">
+                    <img src="https://i.postimg.cc/qvf9Fnqp/Photo-Room-20250328-174817.png" alt="Creación" class="w-full h-auto object-contain transition-transform hover:scale-105 duration-300">
+                </div>
+                <h3 class="text-2xl font-bold text-heroes-yellow mb-4 text-center">CREACIÓN</h3>
+                <p class="text-gray-300 text-center">Nacidos de la necesidad de reconocer a quienes han impactado positivamente en nuestra comunidad. Un espacio para celebrar los logros extraordinarios.</p>
+            </div>
+            
+            <div class="bg-heroes-black bg-opacity-70 p-5 rounded-lg border border-heroes-yellow border-opacity-30 scale-in category-card flex flex-col items-center">
+                <div class="w-80 h-80 mb-6 flex items-center justify-center overflow-hidden">
+                    <img src="https://i.postimg.cc/HLdFYgbK/Photo-Room-20250328-180357.png" alt="Misión" class="w-full h-auto object-contain transition-transform hover:scale-105 duration-300">
+                </div>
+                <h3 class="text-2xl font-bold text-heroes-yellow mb-4 text-center">MISIÓN</h3>
+                <p class="text-gray-300 text-center">Destacar la excelencia, inspirar a otros y construir una comunidad donde los esfuerzos excepcionales sean debidamente valorados y reconocidos.</p>
+            </div>
+            
+            <div class="bg-heroes-black bg-opacity-70 p-5 rounded-lg border border-heroes-yellow border-opacity-30 scale-in category-card flex flex-col items-center">
+                <div class="w-80 h-80 mb-6 flex items-center justify-center overflow-hidden">
+                    <img src="https://i.postimg.cc/bwQKfJSk/Photo-Room-20250328-180708.png" alt="Evento" class="w-full h-auto object-contain transition-transform hover:scale-105 duration-300">
+                </div>
+                <h3 class="text-2xl font-bold text-heroes-yellow mb-4 text-center">EVENTO</h3>
+                <p class="text-gray-300 text-center">La celebración tendrá lugar el 29 de marzo. Una noche llena de reconocimientos, sorpresas y la oportunidad de conocer a los héroes que están haciendo la diferencia.</p>
+            </div>
+        </div>
+        
+        <div class="mt-20 bg-heroes-black bg-opacity-70 p-8 rounded-lg border border-heroes-yellow border-opacity-30 scale-in max-w-4xl mx-auto">
+            <h3 class="text-3xl font-black text-heroes-yellow mb-6 text-center">PREMIOS PARA LOS GANADORES</h3>
+            
+            <ul class="space-y-4">
+                <li class="flex items-start space-x-4">
+                    <div class="w-8 h-8 bg-heroes-yellow rounded-full flex-shrink-0 flex items-center justify-center mt-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-heroes-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold text-white">Trofeo personalizado</h4>
+                        <p class="text-gray-300">Con nombre, edición y categoría grabados.</p>
+                    </div>
+                </li>
+                <li class="flex items-start space-x-4">
+                    <div class="w-8 h-8 bg-heroes-yellow rounded-full flex-shrink-0 flex items-center justify-center mt-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-heroes-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold text-white">Girth Cardgame™</h4>
+                        <p class="text-gray-300">Edición física TOTALMENTE gratuita.</p>
+                    </div>
+                </li>
+                <li class="flex items-start space-x-4">
+                    <div class="w-8 h-8 bg-heroes-yellow rounded-full flex-shrink-0 flex items-center justify-center mt-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-heroes-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold text-white">Entrevista de ganador</h4>
+                        <p class="text-gray-300">Comparte tu historia, logros y visión con Heroes Academy.</p>
+                    </div>
+                </li>
+                <li class="flex items-start space-x-4">
+                    <div class="w-8 h-8 bg-heroes-yellow rounded-full flex-shrink-0 flex items-center justify-center mt-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-heroes-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold text-white">Marco de héroe exclusivo</h4>
+                        <p class="text-gray-300">Un distintivo único para tu perfil.</p>
+                    </div>
+                </li>
+                <li class="flex items-start space-x-4">
+                    <div class="w-8 h-8 bg-heroes-yellow rounded-full flex-shrink-0 flex items-center justify-center mt-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-heroes-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold text-white">Membresía gratuita</h4>
+                        <p class="text-gray-300">3 meses de membresía GRATIS en Heroes Academy (6 meses para el Héroe del Año).</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+
+<!-- Categories Section -->
+<section id="categories" class="py-20 px-4 bg-gradient-to-b from-heroes-black to-black relative">
+    <div class="container mx-auto">
+        <h2 class="text-4xl md:text-5xl font-black text-center mb-16 scale-in">
+            <span class="text-heroes-yellow">CATEGORÍAS</span>
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Categoría 1 -->
+            <div class="bg-heroes-black p-6 rounded-lg border border-heroes-yellow border-opacity-20 scale-in category-card">
+                <div class="w-16 h-16 bg-heroes-yellow rounded-full flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-heroes-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-heroes-yellow mb-2">Mejor post del año</h3>
+                <p class="text-gray-300">Valor, reflexión, mensaje... TODO eso se valorará para escoger al mejor post del año, sin duda este puesto es ESPECIAL, 7 nominados, 1 solo ganador, (o ganadora...) ¿quién se lo llevará?</p>
+            </div>
+            
+            <!-- Categoría 2 -->
+            <div class="bg-heroes-black p-6 rounded-lg border border-heroes-yellow border-opacity-20 scale-in category-card">
+                <div class="w-16 h-16 bg-heroes-yellow rounded-full flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-heroes-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-heroes-yellow mb-2">Héroe más activo</h3>
+                <p class="text-gray-300">¿Dominas el leaderboard? Este Oscar se lo lleva el héroe más activo de todo el año, (todo un crack por cierto), ¿acaso, serás tú?.</p>
+            </div>
+            
+            <!-- Categoría 3 -->
+            <div class="bg-heroes-black p-6 rounded-lg border border-heroes-yellow border-opacity-20 scale-in category-card">
+                <div class="w-16 h-16 bg-heroes-yellow rounded-full flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-heroes-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-heroes-yellow mb-2">Guerrero del año</h3>
+                <p class="text-gray-300">Este Oscar se lo lleva el MVP de los clanes y retos de batalla, teniendo en cuenta su participación, capacidad de aguante (que vaya que se ocupó mucha), y también un montón de involucración comprometida con su clan...</p>
+            </div>
+            
+            <!-- Categoría 4 -->
+            <div class="bg-heroes-black p-6 rounded-lg border border-heroes-yellow border-opacity-20 scale-in category-card">
+                <div class="w-16 h-16 bg-heroes-yellow rounded-full flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-heroes-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-heroes-yellow mb-2">Héroe inspiración</h3>
+                <p class="text-gray-300">Tu historia puede cambiar vidas, por lo que aquí se premia al mejor glow up, historia de superación o cambio extremo. Ya tu sabe, como es esta vaina...</p>
+            </div>
+            
+            <!-- Categoría 5 -->
+            <div class="bg-heroes-black p-6 rounded-lg border border-heroes-yellow border-opacity-20 scale-in category-card">
+                <div class="w-16 h-16 bg-heroes-yellow rounded-full flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-heroes-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-heroes-yellow mb-2">Rookie del año</h3>
+                <p class="text-gray-300">¿Recién llegado y ya eres una leyenda? JAJA. Pues bienvenido, aquí se premian a las máquinas que desde siempre se han roto el lomo por la comunidad, sin duda los MEJORES.</p>
+            </div>
+            
+            <!-- Categoría 6 -->
+            <div class="bg-heroes-black p-6 rounded-lg border border-heroes-yellow border-opacity-20 scale-in category-card">
+                <div class="w-16 h-16 bg-heroes-yellow rounded-full flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-heroes-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-heroes-yellow mb-2">Héroe creator</h3>
+                <p class="text-gray-300">Premia el mejor post en formato vídeo del año, valorando capacidades de grabación, argumentación, captación, edición y storytelling.</p>
+            </div>
+            
+            <!-- Categoría 7 -->
+            <div class="bg-heroes-black p-6 rounded-lg border border-heroes-yellow border-opacity-20 scale-in category-card col-span-1 lg:col-span-3">
+                <div class="w-16 h-16 bg-heroes-yellow rounded-full flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-heroes-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-heroes-yellow mb-2">Héroe del año</h3>
+                <p class="text-gray-300">El héroe más completo, valorando participación, inspiración, desarrollo, iniciativa, etc. El ganador de esta categoría recibirá 6 meses de membresía gratuita en Heroes Academy. POR FAVOR... TOMEN DE EJEMPLO DE ASPIRACIÓN A QUIÉN SEA ESTE DE AQUÍ.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Nominees Section -->
+<section id="nominees" class="py-20 px-4 relative">
+    <div class="absolute inset-0 z-0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <defs>
+                <pattern id="grid-alt" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#FFDD00" stroke-width="0.5" stroke-opacity="0.05"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid-alt)" />
+        </svg>
+    </div>
+    
+    <div class="container mx-auto relative z-10">
+        <h2 class="text-4xl md:text-5xl font-black text-center mb-16 scale-in">
+            <span class="text-heroes-yellow">NOMINADOS</span>
+        </h2>
+        
+        <div class="mb-12">
+            <div class="flex justify-center space-x-2 md:space-x-4 mb-8 overflow-x-auto py-4 nominees-filter">
+                <button class="px-4 py-2 text-heroes-yellow border border-heroes-yellow rounded-md font-bold nominee-filter active" data-category="all">
+                    TODOS
+                </button>
+                <button class="px-4 py-2 text-white hover:text-heroes-yellow hover:border-heroes-yellow border border-white border-opacity-30 rounded-md font-bold nominee-filter" data-category="post-year">
+                    POST DEL AÑO
+                </button>
+                <button class="px-4 py-2 text-white hover:text-heroes-yellow hover:border-heroes-yellow border border-white border-opacity-30 rounded-md font-bold nominee-filter" data-category="guerrero">
+                    GUERRERO INSACIABLE
+                </button>
+                <button class="px-4 py-2 text-white hover:text-heroes-yellow hover:border-heroes-yellow border border-white border-opacity-30 rounded-md font-bold nominee-filter" data-category="inspiracion">
+                    HÉROE INSPIRACIÓN
+                </button>
+                <button class="px-4 py-2 text-white hover:text-heroes-yellow hover:border-heroes-yellow border border-white border-opacity-30 rounded-md font-bold nominee-filter" data-category="rookie">
+                    ROOKIE DEL AÑO
+                </button>
+                <button class="px-4 py-2 text-white hover:text-heroes-yellow hover:border-heroes-yellow border border-white border-opacity-30 rounded-md font-bold nominee-filter" data-category="creator">
+                    HÉROE CREATOR
+                </button>
+                <button class="px-4 py-2 text-white hover:text-heroes-yellow hover:border-heroes-yellow border border-white border-opacity-30 rounded-md font-bold nominee-filter" data-category="year">
+                    HÉROE DEL AÑO
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 nominees-grid">
+                <!-- POST DEL AÑO -->
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="post-year">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/jSpKWjtB/Raul-Hernanz.jpg" alt="Raúl Hernanz" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Post del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Raúl Hernanz</h3>
+        <p class="text-gray-400 text-sm">"BASES DEL COMPORTAMIENTO HUMANO" - El PDF está muyyy bien hecho...  Un análisis BRUTAAL así súper conciso pero metiéndose hasta el fondo de to' la psicología sobre conflictos y como opera la mente.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="post-year">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/1zDSDZzX/David-Zarate.jpg" alt="David Zárate" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Post del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">David Zárate</h3>
+        <p class="text-gray-400 text-sm">"GUÍA COMPLETA DE TESTOSTERONA" - Tiene ABSOLUTAMENTE TODO lo esencial: alimentación que la regula, efectos cuando sube/baja, y cómo impacta en el cuerpo... ni más ni menooos, todo REFINADO y directo al grano. UNA JOYITA perdida sin duda.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="post-year">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/0yMP2SRp/Biel-Hermoso.jpg" alt="Biel Hermoso" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Post del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Biel Hermoso</h3>
+        <p class="text-gray-400 text-sm">"UN DÍA EN LA VIDA DE UN ESTUDIANTE DE HEROES ACADEMY" - Una mirada íntima a la experiencia Heroes, pero así en plan ÍNTIMAAAAA de verdad jajaja. Creado por, obviamente, el hermoso MÁS hermoso de todo Heroes.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="post-year">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/XJ3b8DZ8/Checo-Perezcuadra.jpg" alt="Checo Perezcuadra" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Post del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Checo Perezcuadra</h3>
+        <p class="text-gray-400 text-sm">"LA GUÍA DEFINITIVA PARA SER FELIZ" - Un camino práctico hacia la felicidad verdadera, y también un CLÁSICO de espiritualidad que engloba toda una filosofía para vivir feli como una lombri. JAJAP.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="post-year">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/nzktwYBt/Joc-Bruzual.jpg" alt="Joc Bruzual" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Post del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Joc Bruzual</h3>
+        <p class="text-gray-400 text-sm">"FILOSOFÍA DE LA CONSCIENCIA" - Una profunda reflexión sobre la mente humana. el fumacaños de Joc lo ha hecho de nuevo, que maravilla. No hay mucho que agregar, un cursito.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="post-year">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/HnkCGc98/Julia-Castillo.jpg" alt="Julia Castillo" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Post del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Julia Castillo</h3>
+        <p class="text-gray-400 text-sm">"INVIERTE COMO UN HÉROE" - Estrategias financieras para construir un MUY bien futuro, básicamente poner a trabajar tu dinero (#chambeadamaxima), y todas esas vainas, que te deberían de interesar mucho chaval.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="post-year">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/wM4Y9qwf/Alejandro-Alfirret.jpg" alt="Alejandro Alffiret" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Post del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Alejandro Alffiret</h3>
+        <p class="text-gray-400 text-sm">"GUÍA COMPLETA DE CÓMO APLICAR" - Tu manual de bolsillo para implementar to' lo que tengas en mente para automáticamente ponerlo en acción. DELICIOSAMENTE redactado. Un bendito CLÁSICAZO de uno de los OLD ONES.</p>
+    </div>
+</div>
+<!-- GUERRERO INSACIABLE -->
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="guerrero">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/KzrZhyXw/Sr-Shelton.jpg" alt="Sr. Shelton" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Guerrero Insaciable
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Sr. Shelton</h3>
+        <p class="text-gray-400 text-sm">Señor Shelton, este tío... INCANSABLE en TODAAAS las batallas (¿duerme siquiera? jajajja) y encima PILAR FUNDAMENTAL para su clan, un grande de Antares. ¿Verdad?</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="guerrero">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/zDxrC7qC/Sebasti-n-Herrera.jpg" alt="Sebastián Herrera" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Guerrero Insaciable
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Sebastián Herrera</h3>
+        <p class="text-gray-400 text-sm">Este tío SIEMPRE estaba hasta ARRIIIIBA del top en las competi...  El que más hacía de TODO. Era más que obvio que tenía su lugar MERECIDÍSIMO aquí porque  sin duda alguna era EL ACARREADOR. Una puta máquina de GUERRA total.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="guerrero">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/prRLmLYP/Felix-Bola-os.jpg" alt="Felix Bolaños" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Guerrero Insaciable
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Felix Bolaños</h3>
+        <p class="text-gray-400 text-sm">Una INSPIRACIÓN TOTAL para todo Heroes... pero ¿qué digo? inspiración se queda CORTO. Es que este CABRÓN por poco y se ROMPE EN DOS literalmente jajajajj (todo gracias a las competiciones de Ale)</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="guerrero">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/nzktwYBt/Joc-Bruzual.jpg" alt="Joc Bruzual" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Guerrero Insaciable
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Joc Bruzual</h3>
+        <p class="text-gray-400 text-sm">LÍDER de Antares... FILÓSOFO, FILÁNTROPO y encima PLAYBOY jajajajja. ¿qué MÁS LE puedes pedir a Joc? Es que es IMPOSIBLE, tiene TODOOO lo que buscas en una persona. Y encima con un rendimiento A LA PUTA ALTURA</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="guerrero">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/X7X0Q5vT/Gabriel-Diaz-Quintero.jpg" alt="Gabriel Díaz Quintero" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Guerrero Insaciable
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Gabriel Díaz Quintero</h3>
+        <p class="text-gray-400 text-sm">Mientras todos guardamos las fuerzas, él las saca todas y las pone sobre la PUTA MESA. Que diga yo... es "GABI-NETA-MENTE" imposible seguirle el ritmo a este tío. Una MÁQUINA total este ser de luz.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="guerrero">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/jSpKWjtB/Raul-Hernanz.jpg" alt="Raúl Hernanz" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Guerrero Insaciable
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Raúl Hernanz</h3>
+        <p class="text-gray-400 text-sm">QUE LIDERAZO SEÑORES, los veganos deben de estar orgullosos de que su lider... Sus stat de rendimiento en general es tan EXCEPCIONAL que hasta intimida.  Y encima este CABRÓN es una MÁQUINA DE CHAMBEO que no para ni para mear, terrible.</p>
+    </div>
+</div>
+<!-- HÉROE INSPIRACIÓN -->
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="inspiracion">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/YqVBVSGj/Alvaro-Martin-Batuecas.jpg" alt="Álvaro Martín Batuecas" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe Inspiración
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Álvaro Martín Batuecas</h3>
+        <p class="text-gray-400 text-sm">Es que este tío es el top de tops DEL DEPORTE, sin NINGUNA duda nos ha INSPIRADO a todos con su desempeño...  Y lo mejor es que SIEMPRE (pero SIEMPREEEE) dejará una marca AQUÍ dentro... en el corazón de todos los héroes. Se te quiere mucho bro.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="inspiracion">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/0N1RkHCs/Matias-Varas.jpg" alt="Matías Varas" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe Inspiración
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Matías Varas</h3>
+        <p class="text-gray-400 text-sm">Mati ha estado ahí desde SIEMPRE... vamos, que es un verdadero REAL ONE jajajajja. No hay MÁS QUE DECIR, es un HÉROE ESTRELLA sin ninguna DUDA. Es que la cantidad de gente que habrá ayudado este chaval... Seguro que ha salvado más vidas que un hospital entero, te lo juro.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="inspiracion">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/Hky1CCXz/Marcos-Cardozo.jpg" alt="Marcos Cardozo" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe Inspiración
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Marcos Cardozo</h3>
+        <p class="text-gray-400 text-sm">pero si a este le dicen el SR BEATS jjajaj. Ya quisieran los demás tener ese título, te lo juro... Pero la pregunta del MILLÓN es... ¿para CUÁNDOOOO sale esa COLLAB?  ¿Nos vas a tener así eternamente o qué pasa? Venga ya, danos lo que queremos, CABRÓN. que sabemos que lo tienes guardado por ahí...</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="inspiracion">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/DzQV8dCb/Mathias-Sarmiento.jpg" alt="Mathias Sarmiento" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe Inspiración
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Mathias Sarmiento</h3>
+        <p class="text-gray-400 text-sm">Este máquina ya ES un editor de videos con COJONES jajajajja. Ha evolucionado TAN RÁPIDO que parece que le han metido esteroides al After Effects. Y encima cargando con proyectos colectivos para la comunidad como si fuera poco... Con gente así da gusto convivir.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="inspiracion">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/5yRTZPtD/Tomas-Guerra.jpg" alt="Tomás Guerra" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe Inspiración
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Tomás Guerra</h3>
+        <p class="text-gray-400 text-sm">este tío SERÁ UNA LEYENDA con esa marca de ropa que hizo FUNCIONAR casi así de la NADA... MAMA MÍAAAA. Es que lo que ha montado este cabrón con su marca es de LOCOS TOTALEEESS.(Y oye, aprovecho para decirlo... NO NOS ENOJAMOS para NADA si un día llega un paquete a casa de todo el staff eh?)</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="inspiracion">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/j5RpNw93/Santiago-Londono.jpg" alt="Santiago Londono" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe Inspiración
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Santiago Londono</h3>
+        <p class="text-gray-400 text-sm">Es el FUCKIN MEJOR, este CABRÓN ha creado solito un curso de artes marciales que es toda una vaina jajajajja. Señores, vayan a hecharle un vistazo YAAAA, que es una verdadera joya perdida, además de innovar mucho con su reto THE BEST. Un ejemplo a seguir señores, aprendan de él.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="inspiracion">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/PxKBMfnX/Josue-Pablo.jpg" alt="Josue Pablo" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe Inspiración
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Josue Pablo</h3>
+        <p class="text-gray-400 text-sm">este no necesita presentación, VERDAD?... Es que este tío es CREADOR de 21 Clips y 21 Christmas Clips, etc etc etc...  A veces me pregunto si duerme o si es que tiene 48 horas en su día, porque NO ME LO EXPLICO. JOSUE PABLO, eres GRANDE literalmente, figurativamente y en TODOS LOS SENTIDOS posibles</p>
+    </div>
+</div>
+<!-- ROOKIE DEL AÑO -->
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="rookie">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/8c5xX8Th/Santiago-Hernandez.jpg" alt="Santiago Hernández" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Rookie del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Santiago Hernández</h3>
+        <p class="text-gray-400 text-sm">Este tío es EDITOR NIVEL CINE, ¿Scorsese? ¿Quién es ese? Y encima, POR SI FUERA POCO, te viene en el pack con un FISICAZO TREMENDO que no veas... Que PUTÍSIMA TRANSFORMACIÓN, SEÑORES! ¿Pero cómo lo ha hecho? ¿Se ha vendido al diablo o qué? </p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="rookie">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/X7X0Q5vT/Gabriel-Diaz-Quintero.jpg" alt="Gabriel Díaz Quintero" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Rookie del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Gabriel Díaz Quintero</h3>
+        <p class="text-gray-400 text-sm">OTRA NOMINACIÓN A GABINETA, PERO ESTO QUE ES... no hay nada que haga mal gabineta.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="rookie">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/jSpKWjtB/Raul-Hernanz.jpg" alt="Raúl Hernanz" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Rookie del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Raúl Hernanz</h3>
+        <p class="text-gray-400 text-sm">normalmente la gente llega y necesita tiempo para adaptarse y tal, pero este CABRÓN llegó y fue como "apartaos, que yo me encargo de todo" jajajajja. BRILLA EL CABRÓN, EH... pero no brilla normal, BRILLA TANTÍSIMO que hay que ponerse gafas de sol para mirarlo</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="rookie">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/wxfCyBkF/Erik-Goj.jpg" alt="Erik Goj" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Rookie del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Erik Goj</h3>
+        <p class="text-gray-400 text-sm">Una BESTIA TOTAL para aprender, y encima lo comparte todo... Si este tío quisiera podría montar su propia escuela y nos dejaría a todos en paro, es que hay gente que necesita MESES para adaptarse y este tío lo hizo en DOS PUTAS HORAS jajajajja</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="rookie">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/XJ3b8DZ8/Checo-Perezcuadra.jpg" alt="Checo Perezcuadra" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Rookie del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Checo Perezcuadra</h3>
+        <p class="text-gray-400 text-sm">¡¿50K EN INSTAGRAM?! Y lo mejor de todo es que NO SON BOTS, cabrones, que hay mucha gente por ahí inflando números y este tío los tiene REALES jajaja. Este MONSTRUO ya está en otra liga totalmente</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="rookie">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/1zDSDZzX/David-Zarate.jpg" alt="David Zárate" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Rookie del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">David Zárate</h3>
+        <p class="text-gray-400 text-sm">DIOOOOOOS MÍOOOOO, pero si es el gran Sr. TESTOSTERONA en persona jajajajja. JOER, vaya POSTAZO, EH... Que PUTÍSIMO GRANDE, en serio. 
+Seguro que cuando suda, en vez de agua, le sale pura TESTOSTERONA... de ahí el nombre.</p>
+    </div>
+</div>
+<!-- HÉROE CREATOR -->
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="creator">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/XJ3b8DZ8/Checo-Perezcuadra.jpg" alt="Checo Perezcuadra" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe Creator
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Checo Perezcuadra</h3>
+        <p class="text-gray-400 text-sm">Es que este tío edita como si tuviera 8 manos, te lo juro... Mientras yo aquí intentando cortar un video en el Sony Vegas, él está haciendo MAGIA PURA con cada cosa que toca. Te queremos MUCHO bro, es que personas con ese talento hay POCAS, y tú lo tienes, los 50k van merecidos.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="creator">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/0yMP2SRp/Biel-Hermoso.jpg" alt="Biel Hermoso" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe Creator
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Biel Hermoso</h3>
+        <p class="text-gray-400 text-sm">este tío hizo un vídeo CORTITO pero TAN BIEN HECHO que te cagas jajajaj. Y APARTE mucho OJO con que lo editaste en MÓVIL, cabrón... ¿EN MÓVIL? Mientras los demás necesitamos 3 ordenadores, 5 programas y 48 horas para hacer algo decente </p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="creator">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/8c5xX8Th/Santiago-Hernandez.jpg" alt="Santiago Hernández" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe Creator
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Santiago Hernández</h3>
+        <p class="text-gray-400 text-sm">pero ¿qué COÑO es la habilidad de este señor? Es que NO ES NORMAL jajajajja. Todo SUPER SMOOTH, así que parece que le has echado ACEITE al video para que resbale tan bien. Y todo SUPER BIEN NARRADO, o sea, que cuando hablas es como si tuvieras miel en la garganta...</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="creator">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/nzktwYBt/Joc-Bruzual.jpg" alt="Joc Bruzual" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe Creator
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Joc Bruzual</h3>
+        <p class="text-gray-400 text-sm">Una BESTIA TOTAL este Joc, te lo juro... Si los podcast fueran un deporte olímpico, este cabrón tendría MÁS MEDALLAS QUE USAIN BOLT jajajajja. (Se parece un poco de hecho)</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="creator">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/DzQV8dCb/Mathias-Sarmiento.jpg" alt="Mathias Sarmiento" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe Creator
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Mathias Sarmiento</h3>
+        <p class="text-gray-400 text-sm">Una BESTIA TOTAL de la edición, es que deberían ponerte en un museo o algo... 80 PUTAS HORAS, madre mía, es como si hubieras estado ahí sentadote días y días puliendo cada PUTO FRAME a mano, uno por uno</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="creator">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/QxFRpr4D/Mateo-Ferreyra.jpg" alt="Mateo Ferreyra" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe Creator
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Mateo Ferreyra</h3>
+        <p class="text-gray-400 text-sm">Mate no necesita presentación... TAN SOLO con entrar a su insta, ya te das cuenta de la calidad que maneja este chaval, GRANDE MATEE</p>
+    </div>
+</div>
+<!-- HÉROE DEL AÑO -->
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="year">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/zDxrC7qC/Sebasti-n-Herrera.jpg" alt="Sebastián Herrera" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Sebastián Herrera</h3>
+        <p class="text-gray-400 text-sm">Un filósofo</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="year">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/X7QYv5HJ/Remblencito-Wastaken.jpg" alt="Remblencito Wastaken" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Remblecito Wastaken</h3>
+        <p class="text-gray-400 text-sm">Una cara conocida.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="year">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/jSpKWjtB/Raul-Hernanz.jpg" alt="Raúl Hernanz" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Raúl Hernanz</h3>
+        <p class="text-gray-400 text-sm">Un líder natural.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="year">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/5yRTZPtD/Tomas-Guerra.jpg" alt="Tomás Guerra" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Tomás Guerra</h3>
+        <p class="text-gray-400 text-sm">Un hombre de negocios.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="year">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/0N1RkHCs/Matias-Varas.jpg" alt="Matías Varas" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Matías Varas</h3>
+        <p class="text-gray-400 text-sm"> Un héroe estrella.</p>
+    </div>
+</div>
+
+<div class="bg-heroes-black bg-opacity-70 rounded-lg overflow-hidden scale-in nominee-item" data-category="year">
+    <div class="h-60 bg-gradient-to-r from-heroes-yellow to-yellow-500 flex items-center justify-center p-4 overflow-hidden">
+        <img src="https://i.postimg.cc/nzktwYBt/Joc-Bruzual.jpg" alt="Joc Bruzual" class="w-full h-full object-cover">
+    </div>
+    <div class="p-4">
+        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-heroes-black bg-heroes-yellow mb-2">
+            Héroe del Año
+        </span>
+        <h3 class="text-xl font-bold text-white mb-2">Joc Bruzual</h3>
+        <p class="text-gray-400 text-sm">Un playboy</p>
+    </div>
+</div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Winners Section (Empty slots for now) -->
+<section id="winners" class="py-20 px-4 bg-gradient-to-b from-black to-heroes-black relative">
+    <div class="container mx-auto">
+        <h2 class="text-4xl md:text-5xl font-black text-center mb-16 scale-in">
+            <span class="text-gradient">GANADORES</span>
+            <span class="block text-gray-400 text-lg mt-2">Serán anunciados el 29 de marzo</span>
+        </h2>
+        
+        <div class="grid grid-cols-1 gap-8 max-w-4xl mx-auto">
+            <!-- Slot for Héroe del Año -->
+            <div class="winner-slot p-6 rounded-xl scale-in">
+                <div class="flex flex-col items-center space-y-4">
+                    <div class="w-24 h-24 bg-heroes-yellow bg-opacity-10 rounded-full flex items-center justify-center border-2 border-heroes-yellow">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-heroes-yellow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-heroes-yellow">HÉROE DEL AÑO</h3>
+                    <div class="w-48 h-8 bg-heroes-yellow bg-opacity-10 rounded-full animate-pulse"></div>
+                    <p class="text-gray-400 text-center">El reconocimiento más importante de la noche. ¿Quién será el Héroe que marcó la diferencia este año?</p>
+                </div>
+            </div>
+            
+            <!-- Other winner slots -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Slot 1 -->
+                <div class="winner-slot p-4 rounded-xl scale-in">
+                    <div class="flex flex-col items-center space-y-3">
+                        <h3 class="text-xl font-bold text-heroes-yellow">MEJOR POST DEL AÑO</h3>
+                        <div class="w-32 h-6 bg-heroes-yellow bg-opacity-10 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+                
+                <!-- Slot 2 -->
+                <div class="winner-slot p-4 rounded-xl scale-in">
+                    <div class="flex flex-col items-center space-y-3">
+                        <h3 class="text-xl font-bold text-heroes-yellow">HÉROE MÁS ACTIVO</h3>
+                        <div class="w-32 h-6 bg-heroes-yellow bg-opacity-10 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+                
+                <!-- Slot 3 -->
+                <div class="winner-slot p-4 rounded-xl scale-in">
+                    <div class="flex flex-col items-center space-y-3">
+                        <h3 class="text-xl font-bold text-heroes-yellow">GUERRERO DEL AÑO</h3>
+                        <div class="w-32 h-6 bg-heroes-yellow bg-opacity-10 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+                
+                <!-- Slot 4 -->
+                <div class="winner-slot p-4 rounded-xl scale-in">
+                    <div class="flex flex-col items-center space-y-3">
+                        <h3 class="text-xl font-bold text-heroes-yellow">HÉROE INSPIRACIÓN</h3>
+                        <div class="w-32 h-6 bg-heroes-yellow bg-opacity-10 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+                
+                <!-- Slot 5 -->
+                <div class="winner-slot p-4 rounded-xl scale-in">
+                    <div class="flex flex-col items-center space-y-3">
+                        <h3 class="text-xl font-bold text-heroes-yellow">ROOKIE DEL AÑO</h3>
+                        <div class="w-32 h-6 bg-heroes-yellow bg-opacity-10 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+                
+                <!-- Slot 6 -->
+                <div class="winner-slot p-4 rounded-xl scale-in">
+                    <div class="flex flex-col items-center space-y-3">
+                        <h3 class="text-xl font-bold text-heroes-yellow">HÉROE CREATOR</h3>
+                        <div class="w-32 h-6 bg-heroes-yellow bg-opacity-10 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lottie animation container -->
+        <div class="lottie-container absolute bottom-0 left-0 w-full h-64 pointer-events-none" id="confetti-container"></div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-10 px-4 border-t border-heroes-yellow border-opacity-20">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <img src="https://i.postimg.cc/CKVSLwcQ/117-sin-t-tulo-20250323142054.png" alt="Heroes Oscars Logo" class="h-10 w-auto">
+                        <span class="text-heroes-yellow font-black text-xl">HEROES OSCARS</span>
+                    </div>
+                    <p class="text-gray-400 mt-2">Primera Edición - 29 de Marzo</p>
+                </div>
+                
+                <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-8">
+                    <a href="#home" class="text-white hover:text-heroes-yellow transition-colors">Home</a>
+                    <a href="#about" class="text-white hover:text-heroes-yellow transition-colors">About</a>
+                    <a href="#categories" class="text-white hover:text-heroes-yellow transition-colors">Categorías</a>
+                    <a href="#nominees" class="text-white hover:text-heroes-yellow transition-colors">Nominados</a>
+                    <a href="#winners" class="text-white hover:text-heroes-yellow transition-colors">Ganadores</a>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-8 border-t border-gray-800 text-center">
+                <p class="text-gray-400">© 2025 Heroes Academy. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+// Inicializar GSAP
+gsap.registerPlugin(ScrollTrigger);
+
+// Función para generar un número aleatorio entre min y max
+function random(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+// Función para manejar el cursor personalizado
+function initCustomCursor() {
+    const cursor = document.querySelector('.custom-cursor');
+    const links = document.querySelectorAll('a, button');
+    
+    document.addEventListener('mousemove', (e) => {
+        gsap.to(cursor, {
+            x: e.clientX,
+            y: e.clientY,
+            duration: 0.1,
+            ease: 'power2.out'
+        });
+    });
+    
+    links.forEach(link => {
+        link.addEventListener('mouseenter', () => {
+            gsap.to(cursor, {
+                scale: 1.5,
+                duration: 0.3
+            });
+        });
+        
+        link.addEventListener('mouseleave', () => {
+            gsap.to(cursor, {
+                scale: 1,
+                duration: 0.3
+            });
+        });
+    });
+    
+    // Ocultar cursor en dispositivos táctiles
+    if ('ontouchstart' in window) {
+        cursor.style.display = 'none';
+    }
+}
+
+// Función para manejar el menú móvil
+function initMobileMenu() {
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileLinks = mobileMenu.querySelectorAll('a');
+    
+    menuToggle.addEventListener('click', () => {
+        mobileMenu.classList.toggle('active');
+        if (mobileMenu.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+    });
+    
+    mobileLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            mobileMenu.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+    });
+}
+
+// Función para inicializar las animaciones con GSAP
+function initAnimations() {
+    // Asegurarse que todos los elementos scale-in sean visibles
+    document.querySelectorAll('.scale-in').forEach(element => {
+        element.style.opacity = '1';
+        element.style.transform = 'scale(1)';
+    });
+    
+    // Animación del texto del héroe - más simple
+    const heroTexts = document.querySelectorAll('.hero-text-animation');
+    heroTexts.forEach(text => {
+        text.style.opacity = '1';
+        text.style.transform = 'translateY(0)';
+    });
+    
+    // Configurar scroll triggers básicos sin depender tanto de GSAP
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '-100px 0px'
+    };
+    
+    const scrollObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0) scale(1)';
+                scrollObserver.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    // Observar elementos de categorías y ganadores
+    document.querySelectorAll('.category-card, .winner-slot').forEach(element => {
+        scrollObserver.observe(element);
+    });
+}
+
+// Función para animar el artwork de los Oscars
+function initArtworkAnimation() {
+    const artwork = document.getElementById('oscars-artwork');
+    if (artwork) {
+        // Aplicar animación directamente
+        artwork.style.animation = 'float 6s ease-in-out infinite';
+    }
+}
+
+// Función para inicializar Lottie
+function initLottie() {
+    // Confetti animation data
+    const confettiData = {
+        "v": "5.5.7",
+        "fr": 30,
+        "ip": 0,
+        "op": 90,
+        "w": 1920,
+        "h": 1080,
+        "nm": "Confetti",
+        "ddd": 0,
+        "assets": [],
+        "layers": [
+            {
+                "ddd": 0,
+                "ind": 1,
+                "ty": 4,
+                "nm": "Confetti 1",
+                "sr": 1,
+                "ks": {
+                    "o": {"a": 0, "k": 100, "ix": 11},
+                    "r": {"a": 0, "k": 0, "ix": 10},
+                    "p": {"a": 0, "k": [960, 540, 0], "ix": 2},
+                    "a": {"a": 0, "k": [0, 0, 0], "ix": 1},
+                    "s": {"a": 0, "k": [100, 100, 100], "ix": 6}
+                },
+                "ao": 0,
+                "shapes": [
+                    {
+                        "ty": "gr",
+                        "it": [
+                            {
+                                "ty": "rc",
+                                "d": 1,
+                                "s": {"a": 0, "k": [20, 10], "ix": 2},
+                                "p": {"a": 0, "k": [0, 0], "ix": 3},
+                                "r": {"a": 0, "k": 0, "ix": 4},
+                                "nm": "Rectangle Path 1",
+                                "mn": "ADBE Vector Shape - Rect",
+                                "hd": false
+                            },
+                            {
+                                "ty": "fl",
+                                "c": {"a": 0, "k": [1, 0.867, 0, 1], "ix": 4},
+                                "o": {"a": 0, "k": 100, "ix": 5},
+                                "r": 1,
+                                "bm": 0,
+                                "nm": "Fill 1",
+                                "mn": "ADBE Vector Graphic - Fill",
+                                "hd": false
+                            },
+                            {
+                                "ty": "rp",
+                                "c": {"a": 0, "k": 50, "ix": 1},
+                                "o": {"a": 0, "k": 0, "ix": 2},
+                                "m": 1,
+                                "ix": 3,
+                                "tr": {
+                                    "ty": "tr",
+                                    "p": {
+                                        "a": 1,
+                                        "k": [
+                                            {
+                                                "i": {"x": 0.833, "y": 0.833},
+                                                "o": {"x": 0.167, "y": 0.167},
+                                                "t": 0,
+                                                "s": [0, -600],
+                                                "to": [0, 216.667],
+                                                "ti": [0, -216.667]
+                                            },
+                                            {"t": 90, "s": [0, 700]}
+                                        ],
+                                        "ix": 2
+                                    },
+                                    "a": {"a": 0, "k": [0, 0], "ix": 1},
+                                    "s": {"a": 0, "k": [100, 100], "ix": 3},
+                                    "r": {
+                                        "a": 1,
+                                        "k": [
+                                            {
+                                                "i": {"x": [0.833], "y": [0.833]},
+                                                "o": {"x": [0.167], "y": [0.167]},
+                                                "t": 0,
+                                                "s": [0]
+                                            },
+                                            {"t": 90, "s": [360]}
+                                        ],
+                                        "ix": 4
+                                    },
+                                    "so": {"a": 0, "k": 100, "ix": 5},
+                                    "eo": {"a": 0, "k": 100, "ix": 6},
+                                    "nm": "Transform"
+                                },
+                                "nm": "Repeater 1",
+                                "mn": "ADBE Vector Filter - Repeater",
+                                "hd": false
+                            }
+                        ],
+                        "np": 2,
+                        "cix": 2,
+                        "bm": 0,
+                        "ix": 1,
+                        "mn": "ADBE Vector Group",
+                        "hd": false
+                    }
+                ],
+                "ip": 0,
+                "op": 90,
+                "st": 0,
+                "bm": 0
+            }
+        ],
+        "markers": []
+    };
+    
+    // Elemento donde se renderizará la animación
+    const confettiContainer = document.getElementById('confetti-container');
+    
+    // Inicializar la animación
+    const confettiAnimation = lottie.loadAnimation({
+        container: confettiContainer,
+        renderer: 'svg',
+        loop: true,
+        autoplay: false,
+        animationData: confettiData
+    });
+    
+    // Activar la animación cuando se haga scroll hasta la sección de ganadores
+    ScrollTrigger.create({
+        trigger: '#winners',
+        start: 'top center',
+        onEnter: () => confettiAnimation.play(),
+        onLeave: () => confettiAnimation.pause(),
+        onEnterBack: () => confettiAnimation.play(),
+        onLeaveBack: () => confettiAnimation.pause()
+    });
+}
+
+// VERSIÓN CORREGIDA: Función para filtrar nominados
+function initNomineesFilter() {
+    const filters = document.querySelectorAll('.nominee-filter');
+    const nominees = document.querySelectorAll('.nominee-item');
+    
+    filters.forEach(filter => {
+        filter.addEventListener('click', () => {
+            // Actualizar estado activo de los filtros
+            filters.forEach(f => {
+                f.classList.remove('active', 'text-heroes-yellow', 'border-heroes-yellow');
+                f.classList.add('text-white', 'hover:text-heroes-yellow', 'hover:border-heroes-yellow', 'border-white', 'border-opacity-30');
+            });
+            
+            filter.classList.add('active', 'text-heroes-yellow', 'border-heroes-yellow');
+            filter.classList.remove('text-white', 'hover:text-heroes-yellow', 'hover:border-heroes-yellow', 'border-white', 'border-opacity-30');
+            
+            const category = filter.getAttribute('data-category');
+            
+            // SOLUCIÓN AL BUG: Primero configurar todos los elementos que se ocultarán
+            if (category !== 'all') {
+                nominees.forEach(nominee => {
+                    if (nominee.getAttribute('data-category') !== category) {
+                        // Primero ocultamos sin animación para evitar parpadeos
+                        nominee.style.opacity = '0';
+                        nominee.style.transform = 'scale(0.8)';
+                        setTimeout(() => {
+                            nominee.classList.add('hidden');
+                        }, 300); // Tiempo suficiente para que termine la transición
+                    }
+                });
+            }
+            
+            // Luego mostrar los elementos correspondientes
+            setTimeout(() => {
+                nominees.forEach(nominee => {
+                    if (category === 'all' || nominee.getAttribute('data-category') === category) {
+                        nominee.classList.remove('hidden');
+                        // Pequeño delay para asegurar que el DOM ha actualizado
+                        setTimeout(() => {
+                            nominee.style.opacity = '1';
+                            nominee.style.transform = 'scale(1)';
+                        }, 50);
+                    }
+                });
+            }, category === 'all' ? 0 : 300); // Si es "all", no esperamos
+        });
+    });
+    
+    // Inicializar con "all" seleccionado
+    document.querySelector('.nominee-filter[data-category="all"]').click();
+}
+
+// Función para crear efecto de partículas
+function createParticleEffect() {
+    document.body.addEventListener('click', (e) => {
+        // Crear 10 partículas en la posición del clic
+        for (let i = 0; i < 10; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            // Posición inicial
+            particle.style.left = `${e.clientX}px`;
+            particle.style.top = `${e.clientY}px`;
+            
+            // Tamaño aleatorio
+            const size = Math.random() * 10 + 5;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            document.body.appendChild(particle);
+            
+            // Animación con GSAP
+            gsap.to(particle, {
+                x: random(-100, 100),
+                y: random(-100, 100),
+                opacity: 1,
+                duration: 0.1,
+                ease: 'power1.out',
+                onComplete: () => {
+                    gsap.to(particle, {
+                        x: random(-200, 200),
+                        y: random(-200, 200),
+                        opacity: 0,
+                        duration: random(0.5, 1.5),
+                        ease: 'power1.out',
+                        onComplete: () => {
+                            particle.remove();
+                        }
+                    });
+                }
+            });
+        }
+    });
+}
+
+// Inicializar todas las funciones cuando se cargue el documento
+document.addEventListener('DOMContentLoaded', () => {
+    initCustomCursor();
+    initMobileMenu();
+    initAnimations();
+    initArtworkAnimation();
+    initLottie();
+    initNomineesFilter();
+    createParticleEffect();
+    
+    // Verificar modo oscuro/claro
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+    }
+    
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        if (event.matches) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    });
+});
+</script>
+</body>
+</html>
