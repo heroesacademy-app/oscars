@@ -358,6 +358,75 @@
                 min-width: max-content;
             }
             
+            /* Filtros de nominados organizados en 2 filas en móvil */
+.nominees-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    padding: 0.5rem;
+}
+
+.nominee-filter {
+    background: transparent;
+    color: white;
+    font-weight: 700;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.nominee-filter.active {
+    color: #FFDD00;
+    border-color: #FFDD00;
+    background-color: rgba(255, 221, 0, 0.1);
+}
+
+.nominee-filter:hover:not(.active) {
+    color: #FFDD00;
+    border-color: #FFDD00;
+}
+
+/* Distribución en 2 filas para móvil */
+@media (max-width: 768px) {
+    .nominees-filter {
+        gap: 8px;
+        padding: 0.5rem;
+    }
+    
+    /* Distribución de primera fila - 4 botones */
+    .nominee-filter:nth-child(-n+4) {
+        width: calc(25% - 8px);
+        font-size: 0.85rem;
+        padding: 0.7rem 0.3rem;
+    }
+    
+    /* Distribución de segunda fila - 3 botones restantes */
+    .nominee-filter:nth-child(n+5) {
+        width: calc(33.33% - 8px);
+        font-size: 0.85rem;
+        padding: 0.7rem 0.3rem;
+    }
+}
+
+/* Ajustes adicionales para pantallas muy pequeñas */
+@media (max-width: 480px) {
+    .nominee-filter:nth-child(-n+4) {
+        font-size: 0.75rem;
+        padding: 0.6rem 0.2rem;
+    }
+    
+    .nominee-filter:nth-child(n+5) {
+        font-size: 0.75rem;
+        padding: 0.6rem 0.2rem;
+    }
+}
+
+            
             #oscars-artwork {
                 max-width: 80%;
                 margin: 0 auto;
